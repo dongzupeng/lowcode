@@ -274,23 +274,62 @@ const PreviewCanvas: React.FC<{ onExitPreview: () => void }> = ({ onExitPreview 
               top: mergedProps.y,
               width: mergedProps.width,
               height: mergedProps.height,
-              border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`,
-              borderRadius: '8px',
+              border: 'none',
+              borderRadius: '4px',
               overflow: 'hidden',
-              backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#ffffff',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              backgroundColor: currentTheme === 'dark' ? '#2d3748' : 'white',
+              boxSizing: 'border-box',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              flexDirection: 'column'
             }}
           >
+            {/* 封面图片 */}
             <div style={{ 
-              padding: '12px', 
-              borderBottom: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#eee'}`,
-              backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#f8f9fa',
-              color: currentTheme === 'dark' ? '#e2e8f0' : '#333'
+              width: '100%', 
+              height: '250px',
+              overflow: 'hidden'
             }}>
-              {mergedProps.title || '卡片标题'}
+              <img 
+                src={mergedProps.coverImage || 'https://via.placeholder.com/400x300'} 
+                alt="封面" 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              />
             </div>
-            <div style={{ padding: '12px', color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>
-              {mergedProps.text || '卡片内容'}
+            
+            {/* 内容区域 */}
+            <div style={{ 
+              flex: 1, 
+              padding: '14px', 
+              display: 'flex', 
+              flexDirection: 'column',
+              backgroundColor: currentTheme === 'dark' ? '#2d3748' : 'white'
+            }}>
+              {/* 标题 */}
+              <h3 style={{ 
+                margin: '0 0 6px 0', 
+                color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+                fontSize: '16px',
+                fontWeight: '500',
+                lineHeight: '1.2'
+              }}>
+                {mergedProps.title || 'Europe Street beat'}
+              </h3>
+              
+              {/* 描述信息 */}
+              <p style={{ 
+                margin: '0',
+                color: currentTheme === 'dark' ? '#a0aec0' : '#666',
+                fontSize: '14px',
+                lineHeight: '1.4'
+              }}>
+                {mergedProps.description || mergedProps.text || 'www.instagram.com'}
+              </p>
             </div>
           </div>
         );

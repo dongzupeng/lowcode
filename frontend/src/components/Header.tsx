@@ -2,7 +2,6 @@ import React from 'react';
 import useAppStore from '../store/useAppStore';
 
 interface HeaderProps {
-  message: string;
   isPreviewMode: boolean;
   onSave: () => void;
   onLoad: () => void;
@@ -17,7 +16,6 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
-  message,
   isPreviewMode,
   onSave,
   onLoad,

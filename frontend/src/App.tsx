@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import DraggableComponent from './components/DraggableComponent';
 import Canvas from './components/Canvas';
 import PropertyEditor from './components/PropertyEditor';
-import Message from './components/Message';
+import { MessageProvider, useMessage } from './components/Message';
 import Header from './components/Header';
 import PreviewCanvas from './components/PreviewCanvas';
 import useAppStore from './store/useAppStore';
 import './App.css';
 
-function App() {
+function AppContent() {
+  const { showMessage } = useMessage();
   const savePage = useAppStore((state) => state.savePage);
   const loadPage = useAppStore((state) => state.loadPage);
   const copyComponent = useAppStore((state) => state.copyComponent);
@@ -24,22 +25,18 @@ function App() {
   const toggleGrid = useAppStore((state) => state.toggleGrid);
   const setGridSize = useAppStore((state) => state.setGridSize);
   const selectedComponentId = useAppStore((state) => state.selectedComponentId);
-  const [message, setMessage] = useState('');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   const handleSave = async () => {
     try {
       const result = await savePage();
       if (result) {
-        setMessage('页面保存成功！');
-        setTimeout(() => setMessage(''), 2000);
+        showMessage('页面保存成功！', { type: 'success' });
       } else {
-        setMessage('页面保存失败！');
-        setTimeout(() => setMessage(''), 2000);
+        showMessage('页面保存失败！', { type: 'error' });
       }
     } catch (error) {
-      setMessage('页面保存失败！');
-      setTimeout(() => setMessage(''), 2000);
+      showMessage('页面保存失败！', { type: 'error' });
     }
   };
 
@@ -47,15 +44,12 @@ function App() {
     try {
       const result = await loadPage();
       if (result) {
-        setMessage('页面加载成功！');
-        setTimeout(() => setMessage(''), 2000);
+        showMessage('页面加载成功！', { type: 'success' });
       } else {
-        setMessage('页面加载失败！');
-        setTimeout(() => setMessage(''), 2000);
+        showMessage('页面加载失败！', { type: 'error' });
       }
     } catch (error) {
-      setMessage('页面加载失败！');
-      setTimeout(() => setMessage(''), 2000);
+      showMessage('页面加载失败！', { type: 'error' });
     }
   };
 
@@ -63,19 +57,16 @@ function App() {
   const handleCopy = () => {
     if (selectedComponentId) {
       copyComponent(selectedComponentId);
-      setMessage('组件复制成功！');
-      setTimeout(() => setMessage(''), 2000);
+      showMessage('组件复制成功！', { type: 'success' });
     } else {
-      setMessage('请先选择一个组件！');
-      setTimeout(() => setMessage(''), 2000);
+      showMessage('请先选择一个组件！', { type: 'warning' });
     }
   };
 
   // 处理粘贴组件
   const handlePaste = () => {
     pasteComponent();
-    setMessage('组件粘贴成功！');
-    setTimeout(() => setMessage(''), 2000);
+    showMessage('组件粘贴成功！', { type: 'success' });
   };
 
   // 处理预览模式切换
@@ -86,47 +77,51 @@ function App() {
   // 处理撤销
   const handleUndo = () => {
     undo();
-    setMessage('撤销操作成功！');
-    setTimeout(() => setMessage(''), 2000);
+    showMessage('撤销操作成功！', { type: 'success' });
   };
 
   // 处理重做
   const handleRedo = () => {
     redo();
-    setMessage('重做操作成功！');
-    setTimeout(() => setMessage(''), 2000);
+    showMessage('重做操作成功！', { type: 'success' });
   };
 
   // 处理主题切换
   const toggleTheme = () => {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     setCurrentTheme(newTheme);
-    setMessage(`已切换到${newTheme === 'light' ? '浅色' : '深色'}主题！`);
-    setTimeout(() => setMessage(''), 2000);
+    showMessage(`已切换到${newTheme === 'light' ? '浅色' : '深色'}主题！`, { type: 'success' });
   };
 
   // 键盘快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 复制: Ctrl+C
-      if (e.ctrlKey && e.key === 'c') {
-        e.preventDefault();
-        handleCopy();
-      }
-      // 粘贴: Ctrl+V
-      if (e.ctrlKey && e.key === 'v') {
-        e.preventDefault();
-        handlePaste();
-      }
-      // 撤销: Ctrl+Z
-      if (e.ctrlKey && e.key === 'z') {
-        e.preventDefault();
-        handleUndo();
-      }
-      // 重做: Ctrl+Y 或 Ctrl+Shift+Z
-      if ((e.ctrlKey && e.key === 'y') || (e.ctrlKey && e.shiftKey && e.key === 'z')) {
-        e.preventDefault();
-        handleRedo();
+      // 检查事件目标是否是输入字段
+      const target = e.target as HTMLElement;
+      const isInputElement = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+      
+      // 只有当不是输入字段时才执行全局快捷键
+      if (!isInputElement) {
+        // 复制: Ctrl+C
+        if (e.ctrlKey && e.key === 'c') {
+          e.preventDefault();
+          handleCopy();
+        }
+        // 粘贴: Ctrl+V
+        if (e.ctrlKey && e.key === 'v') {
+          e.preventDefault();
+          handlePaste();
+        }
+        // 撤销: Ctrl+Z
+        if (e.ctrlKey && e.key === 'z') {
+          e.preventDefault();
+          handleUndo();
+        }
+        // 重做: Ctrl+Y 或 Ctrl+Shift+Z
+        if ((e.ctrlKey && e.key === 'y') || (e.ctrlKey && e.shiftKey && e.key === 'z')) {
+          e.preventDefault();
+          handleRedo();
+        }
       }
     };
 
@@ -143,7 +138,6 @@ function App() {
         transition: 'all 0.3s ease'
       }}>
         <Header
-          message={message}
           isPreviewMode={isPreviewMode}
           onSave={handleSave}
           onLoad={handleLoad}
@@ -156,7 +150,6 @@ function App() {
           onSetGridSize={setGridSize}
           onTogglePreview={togglePreview}
         />
-        <Message message={message} />
         {isPreviewMode ? (
           <PreviewCanvas onExitPreview={togglePreview} />
         ) : (
@@ -224,6 +217,14 @@ function App() {
         )}
       </div>
     </DndProvider>
+  );
+}
+
+function App() {
+  return (
+    <MessageProvider>
+      <AppContent />
+    </MessageProvider>
   );
 }
 

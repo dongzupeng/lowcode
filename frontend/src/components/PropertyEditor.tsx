@@ -21,9 +21,8 @@ const PropertyEditor = () => {
       <div className="property-editor" style={{
         backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#ffffff',
         color: currentTheme === 'dark' ? '#e2e8f0' : '#333333',
-        border: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e0e0e0'}`
       }}>
-        <h3>属性编辑器</h3>
+        <h3 style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>属性编辑器</h3>
         <p style={{ color: currentTheme === 'dark' ? '#a0aec0' : '#666', marginTop: '1rem' }}>请选择一个组件来编辑其属性</p>
       </div>
     );
@@ -40,6 +39,10 @@ const PropertyEditor = () => {
 
   const handleInputChange = (property: string, value: any) => {
     if (selectedComponentId) {
+      // 确保数字值没有前导0
+      if (typeof value === 'number') {
+        value = parseInt(value.toString());
+      }
       if (currentBreakpoint === 'desktop') {
         updateComponent(selectedComponentId, { [property]: value });
       } else {
@@ -52,13 +55,12 @@ const PropertyEditor = () => {
     <div className="property-editor" style={{
       backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#ffffff',
       color: currentTheme === 'dark' ? '#e2e8f0' : '#333333',
-      border: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e0e0e0'}`
     }}>
-      <h3>属性编辑器</h3>
+      <h3 style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>属性编辑器</h3>
       
       {/* 响应式布局断点选择器 */}
       <div className="property-group">
-        <label className="property-label">响应式断点</label>
+        <label className="property-label" style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>响应式断点</label>
         <div style={{ display: 'flex', gap: '8px' }}>
           {(['desktop', 'tablet', 'mobile'] as Breakpoint[]).map((breakpoint) => (
             <button
@@ -88,7 +90,23 @@ const PropertyEditor = () => {
         <input
           type="number"
           value={mergedProps.x}
-          onChange={(e) => handleInputChange('x', parseInt(e.target.value) || 0)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '') {
+              handleInputChange('x', 0);
+            } else {
+              const numValue = parseInt(value);
+              if (!isNaN(numValue)) {
+                handleInputChange('x', numValue);
+              }
+            }
+          }}
+          onInput={(e) => {
+            const input = e.target as HTMLInputElement;
+            if (input.value.startsWith('0') && input.value.length > 1 && !input.value.startsWith('0.')) {
+              input.value = parseInt(input.value).toString();
+            }
+          }}
           className="property-input"
           style={{
             backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
@@ -102,7 +120,23 @@ const PropertyEditor = () => {
         <input
           type="number"
           value={mergedProps.y}
-          onChange={(e) => handleInputChange('y', parseInt(e.target.value) || 0)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '') {
+              handleInputChange('y', 0);
+            } else {
+              const numValue = parseInt(value);
+              if (!isNaN(numValue)) {
+                handleInputChange('y', numValue);
+              }
+            }
+          }}
+          onInput={(e) => {
+            const input = e.target as HTMLInputElement;
+            if (input.value.startsWith('0') && input.value.length > 1 && !input.value.startsWith('0.')) {
+              input.value = parseInt(input.value).toString();
+            }
+          }}
           className="property-input"
           style={{
             backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
@@ -116,7 +150,23 @@ const PropertyEditor = () => {
         <input
           type="number"
           value={mergedProps.width}
-          onChange={(e) => handleInputChange('width', parseInt(e.target.value) || 0)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '') {
+              handleInputChange('width', 0);
+            } else {
+              const numValue = parseInt(value);
+              if (!isNaN(numValue)) {
+                handleInputChange('width', numValue);
+              }
+            }
+          }}
+          onInput={(e) => {
+            const input = e.target as HTMLInputElement;
+            if (input.value.startsWith('0') && input.value.length > 1 && !input.value.startsWith('0.')) {
+              input.value = parseInt(input.value).toString();
+            }
+          }}
           className="property-input"
           style={{
             backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
@@ -130,7 +180,23 @@ const PropertyEditor = () => {
         <input
           type="number"
           value={mergedProps.height}
-          onChange={(e) => handleInputChange('height', parseInt(e.target.value) || 0)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value === '') {
+              handleInputChange('height', 0);
+            } else {
+              const numValue = parseInt(value);
+              if (!isNaN(numValue)) {
+                handleInputChange('height', numValue);
+              }
+            }
+          }}
+          onInput={(e) => {
+            const input = e.target as HTMLInputElement;
+            if (input.value.startsWith('0') && input.value.length > 1 && !input.value.startsWith('0.')) {
+              input.value = parseInt(input.value).toString();
+            }
+          }}
           className="property-input"
           style={{
             backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
@@ -263,21 +329,54 @@ const PropertyEditor = () => {
       
       {/* 卡片属性 */}
       {selectedComponent.type === 'card' && (
-        <div className="property-group">
-          <label className="property-label" style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>卡片标题</label>
-          <input
-            type="text"
-            value={mergedProps.title || ''}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-            className="property-input"
-            placeholder="请输入卡片标题"
-            style={{
-              backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
-              color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
-              border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`
-            }}
-          />
-        </div>
+        <>
+          <div className="property-group">
+            <label className="property-label" style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>卡片标题</label>
+            <input
+              type="text"
+              value={mergedProps.title || ''}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              className="property-input"
+              placeholder="请输入卡片标题"
+              style={{
+                backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
+                color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+                border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`
+              }}
+            />
+          </div>
+          <div className="property-group">
+            <label className="property-label" style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>封面图片</label>
+            <input
+              type="text"
+              value={mergedProps.coverImage || ''}
+              onChange={(e) => handleInputChange('coverImage', e.target.value)}
+              className="property-input"
+              placeholder="请输入封面图片URL"
+              style={{
+                backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
+                color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+                border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`
+              }}
+            />
+          </div>
+          <div className="property-group">
+            <label className="property-label" style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#333' }}>描述信息</label>
+            <textarea
+              value={mergedProps.description || ''}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              className="property-input"
+              placeholder="请输入描述信息"
+              rows={3}
+              style={{
+                backgroundColor: currentTheme === 'dark' ? '#4a5568' : '#ffffff',
+                color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+                border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`,
+                resize: 'vertical'
+              }}
+            />
+          </div>
+        </>
       )}
       
       {/* 组件层级管理 */}

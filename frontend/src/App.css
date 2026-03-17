@@ -161,7 +161,7 @@ body {
 
 /* 属性编辑器样式 */
 .property-editor {
-  padding: 0;
+  padding: 1rem;
 }
 
 .property-editor h3 {

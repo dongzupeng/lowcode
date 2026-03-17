@@ -87,8 +87,15 @@ const Canvas = () => {
         const y = offset.y - canvasRect.top;
 
         // 确保组件初始位置在画布内
-        const componentWidth = 100;
-        const componentHeight = 40;
+        let componentWidth = 100;
+        let componentHeight = 40;
+        
+        // 为卡片组件设置更合适的默认宽高
+        if (item.type === 'card') {
+          componentWidth = 280;
+          componentHeight = 350;
+        }
+        
         const centerX = x - componentWidth / 2;
         const centerY = y - componentHeight / 2;
         
@@ -108,7 +115,9 @@ const Canvas = () => {
             height: componentHeight,
             text: item.type === 'button' ? 'Button' : 
                   item.type === 'text' ? 'Text' : 
-                  item.type === 'input' ? 'Input' : 'Div',
+                  item.type === 'input' ? 'Input' : 
+                  item.type === 'card' ? '卡片内容' : 'Div',
+            title: item.type === 'card' ? 'Europe Street beat' : undefined,
           },
         };
 

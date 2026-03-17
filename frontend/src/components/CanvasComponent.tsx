@@ -22,6 +22,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
   const componentRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isCardHovered, setIsCardHovered] = useState(false);
   const [alignmentLines, setAlignmentLines] = useState<Array<{type: string, position: number, color: string}>>([]);
   
   // 网格吸附函数
@@ -76,7 +77,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
       const deltaY = moveEvent.clientY - startY;
       
       // 边界控制 - 确保组件在画布内
-      
       let newX = startComponentX + deltaX;
       let newY = startComponentY + deltaY;
       
@@ -121,8 +121,8 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
 
     const handleMouseUp = (upEvent: MouseEvent) => {
       upEvent.stopPropagation();
-      document.removeEventListener('mousemove', handleMouseMove, { capture: true });
-      document.removeEventListener('mouseup', handleMouseUp, { capture: true });
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
       // 确保释放鼠标时组件仍然被选中
       selectComponent(component.id);
       setIsDragging(false);
@@ -130,9 +130,9 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
       setAlignmentLines([]);
     };
 
-    // 使用capture模式添加事件监听器，确保事件能够被正确捕获
-    document.addEventListener('mousemove', handleMouseMove, { capture: true });
-    document.addEventListener('mouseup', handleMouseUp, { capture: true });
+    // 添加事件监听器
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -216,6 +216,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <button 
             className="canvas-button" 
+            onClick={handleClick}
             style={{
               backgroundColor: '#667eea',
               color: 'white',
@@ -234,13 +235,15 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-text" 
+            onClick={handleClick}
             style={{
               color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
               fontSize: '14px',
               padding: '8px',
               width: '100%',
               height: '100%',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              cursor: 'pointer'
             }}
           >
             {mergedProps.text}
@@ -251,6 +254,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
           <input
             className="canvas-input"
             placeholder={mergedProps.text}
+            onClick={handleClick}
             style={{
               width: '100%',
               height: '100%',
@@ -259,7 +263,8 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
               borderRadius: '4px',
               backgroundColor: currentTheme === 'dark' ? '#4a5568' : 'white',
               color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              cursor: 'pointer'
             }}
           />
         );
@@ -267,6 +272,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-div" 
+            onClick={handleClick}
             style={{
               width: '100%',
               height: '100%',
@@ -274,7 +280,8 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
               padding: '16px',
               backgroundColor: currentTheme === 'dark' ? '#2d3748' : 'white',
               color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              cursor: 'pointer'
             }}
           >
             {mergedProps.text}
@@ -282,7 +289,20 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         );
       case 'image':
         return (
-          <div className="canvas-image">
+          <div 
+            className="canvas-image" 
+            onClick={handleClick}
+            style={{
+              width: '100%',
+              height: '100%',
+              border: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              overflow: 'hidden',
+              boxShadow: currentTheme === 'dark' ? '0 2px 4px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.05)',
+              backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#f8f9fa',
+              cursor: 'pointer'
+            }}
+          >
             <img 
               src={mergedProps.src || 'https://via.placeholder.com/100x100'} 
               alt={mergedProps.alt || 'Image'}
@@ -294,30 +314,54 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-checkbox" 
+            onClick={handleClick}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              color: currentTheme === 'dark' ? '#e2e8f0' : '#333'
+              gap: '10px',
+              color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+              padding: '8px 12px',
+              backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#f8f9fa',
+              border: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              width: '100%',
+              height: '100%',
+              boxSizing: 'border-box',
+              cursor: 'pointer'
             }}
           >
             <input 
               type="checkbox" 
               checked={mergedProps.checked || false}
               onChange={(e) => handlePropertyChange('checked', e.target.checked)}
+              style={{
+                accentColor: '#667eea',
+                width: '16px',
+                height: '16px',
+                cursor: 'pointer'
+              }}
             />
-            <span>{mergedProps.text || 'Checkbox'}</span>
+            <span style={{ fontSize: '14px', fontWeight: '400' }}>{mergedProps.text || 'Checkbox'}</span>
           </div>
         );
       case 'radio':
         return (
           <div 
             className="canvas-radio" 
+            onClick={handleClick}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              color: currentTheme === 'dark' ? '#e2e8f0' : '#333'
+              gap: '10px',
+              color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+              padding: '8px 12px',
+              backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#f8f9fa',
+              border: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e2e8f0'}`,
+              borderRadius: '8px',
+              width: '100%',
+              height: '100%',
+              boxSizing: 'border-box',
+              cursor: 'pointer'
             }}
           >
             <input 
@@ -325,25 +369,35 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
               name={mergedProps.name || 'radio'}
               checked={mergedProps.checked || false}
               onChange={(e) => handlePropertyChange('checked', e.target.checked)}
+              style={{
+                accentColor: '#667eea',
+                width: '16px',
+                height: '16px',
+                cursor: 'pointer'
+              }}
             />
-            <span>{mergedProps.text || 'Radio'}</span>
+            <span style={{ fontSize: '14px', fontWeight: '400' }}>{mergedProps.text || 'Radio'}</span>
           </div>
         );
       case 'select':
         return (
           <select 
             className="canvas-select" 
+            onClick={handleClick}
             value={mergedProps.value || ''}
             onChange={(e) => handlePropertyChange('value', e.target.value)}
             style={{
               width: '100%',
               height: '100%',
-              padding: '8px',
-              border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`,
-              borderRadius: '4px',
+              padding: '8px 12px',
+              border: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e2e8f0'}`,
+              borderRadius: '8px',
               backgroundColor: currentTheme === 'dark' ? '#4a5568' : 'white',
               color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              fontSize: '14px',
+              boxShadow: currentTheme === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.2)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+              cursor: 'pointer'
             }}
           >
             <option value="">请选择</option>
@@ -356,19 +410,24 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <textarea 
             className="canvas-textarea" 
+            onClick={handleClick}
             placeholder={mergedProps.placeholder || '请输入文本'}
             value={mergedProps.text || ''}
             onChange={(e) => handlePropertyChange('text', e.target.value)}
             style={{
               width: '100%',
               height: '100%',
-              padding: '8px',
-              border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`,
-              borderRadius: '4px',
+              padding: '12px',
+              border: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e2e8f0'}`,
+              borderRadius: '8px',
               backgroundColor: currentTheme === 'dark' ? '#4a5568' : 'white',
               color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
               resize: 'none',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              fontSize: '14px',
+              boxShadow: currentTheme === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.2)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              cursor: 'pointer'
             }}
           />
         );
@@ -376,10 +435,12 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <h3 
             className="canvas-heading" 
+            onClick={handleClick}
             style={{
               margin: 0,
               fontSize: '18px',
-              color: currentTheme === 'dark' ? '#e2e8f0' : '#333'
+              color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+              cursor: 'pointer'
             }}
           >
             {mergedProps.text || '标题'}
@@ -387,37 +448,98 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         );
       case 'divider':
         return (
-          <div className="canvas-divider">
-            <hr style={{ borderColor: currentTheme === 'dark' ? '#4a5568' : '#ddd' }} />
+          <div 
+            className="canvas-divider" 
+            onClick={handleClick}
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px 0',
+              cursor: 'pointer'
+            }}
+          >
+            <hr style={{ 
+              width: '100%', 
+              border: 'none',
+              borderTop: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#e2e8f0'}`,
+              margin: 0,
+              height: '1px'
+            }} />
           </div>
         );
       case 'card':
         return (
           <div 
             className="canvas-card" 
+            onClick={handleClick}
             style={{
               width: '100%',
               height: '100%',
-              border: `1px solid ${currentTheme === 'dark' ? '#718096' : '#ddd'}`,
-              borderRadius: '8px',
+              border: 'none',
+              borderRadius: '4px',
               overflow: 'hidden',
               backgroundColor: currentTheme === 'dark' ? '#2d3748' : 'white',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              boxShadow: isCardHovered 
+                ? currentTheme === 'dark' ? '0 4px 12px rgba(0, 0, 0, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.1)' 
+                : currentTheme === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.12)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
+              transition: 'all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1)',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column'
             }}
+            onMouseEnter={() => setIsCardHovered(true)}
+            onMouseLeave={() => setIsCardHovered(false)}
           >
+            {/* 封面图片 */}
             <div style={{ 
-              padding: '12px', 
-              borderBottom: `1px solid ${currentTheme === 'dark' ? '#4a5568' : '#eee'}`,
-              backgroundColor: currentTheme === 'dark' ? '#2d3748' : '#f8f9fa',
-              color: currentTheme === 'dark' ? '#e2e8f0' : '#333'
+              width: '100%', 
+              height: '250px',
+              overflow: 'hidden'
             }}>
-              {mergedProps.title || '卡片标题'}
+              <img 
+                src={mergedProps.coverImage || 'https://via.placeholder.com/400x300'} 
+                alt="封面" 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover',
+                  display: 'block'
+                }}
+              />
             </div>
+            
+            {/* 内容区域 */}
             <div style={{ 
-              padding: '12px',
-              color: currentTheme === 'dark' ? '#e2e8f0' : '#333'
+              flex: 1, 
+              padding: '14px', 
+              display: 'flex', 
+              flexDirection: 'column',
+              backgroundColor: currentTheme === 'dark' ? '#2d3748' : 'white'
             }}>
-              {mergedProps.text || '卡片内容'}
+              {/* 标题 */}
+              <h3 style={{ 
+                margin: '0 0 6px 0', 
+                color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
+                fontSize: '16px',
+                fontWeight: '500',
+                lineHeight: '1.2'
+              }}>
+                {mergedProps.title || 'Europe Street beat'}
+              </h3>
+              
+              {/* 描述信息 */}
+              <p style={{ 
+                margin: '0',
+                color: currentTheme === 'dark' ? '#a0aec0' : '#666',
+                fontSize: '14px',
+                lineHeight: '1.4'
+              }}>
+                {mergedProps.description || mergedProps.text || 'www.instagram.com'}
+              </p>
             </div>
           </div>
         );
