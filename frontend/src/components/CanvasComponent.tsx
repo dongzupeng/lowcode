@@ -21,8 +21,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
   const deleteComponent = useAppStore((state) => state.deleteComponent);
   const componentRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(component.props.text || '');
+  const [isHovered, setIsHovered] = useState(false);
   const [alignmentLines, setAlignmentLines] = useState<Array<{type: string, position: number, color: string}>>([]);
   
   // 网格吸附函数
@@ -139,28 +138,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     selectComponent(component.id); // 确保组件被选中，显示右侧属性编辑器
-    // 单击进入编辑模式，允许在控件上直接编辑文本
-    setIsEditing(true);
-    setEditValue(mergedProps.text || '');
-  };
-
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditValue(e.target.value);
-  };
-
-  const handleEditSubmit = () => {
-    // 根据当前断点决定更新基础属性还是响应式属性
-    if (currentBreakpoint === 'desktop') {
-      updateComponent(component.id, { text: editValue });
-    } else {
-      updateResponsiveProps(component.id, currentBreakpoint, { text: editValue });
-    }
-    setIsEditing(false);
-  };
-
-  const handleEditCancel = () => {
-    setIsEditing(false);
-    setEditValue(mergedProps.text || '');
   };
 
   // 计算对齐辅助线
@@ -226,32 +203,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
   };
 
   const renderComponent = () => {
-    if (isEditing) {
-      return (
-        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', backgroundColor: currentTheme === 'dark' ? '#2d3748' : 'white' }}>
-          <input
-            type="text"
-            value={editValue}
-            onChange={handleEditChange}
-            onBlur={handleEditSubmit}
-            onKeyPress={(e) => e.key === 'Enter' && handleEditSubmit()}
-            style={{ 
-              width: '80%', 
-              padding: '4px', 
-              border: '1px solid #667eea',
-              backgroundColor: currentTheme === 'dark' ? '#4a5568' : 'white',
-              color: currentTheme === 'dark' ? 'white' : 'black'
-            }}
-            autoFocus
-          />
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={handleEditSubmit} style={{ padding: '2px 8px', background: '#667eea', color: 'white', border: 'none', borderRadius: '4px' }}>保存</button>
-            <button onClick={handleEditCancel} style={{ padding: '2px 8px', background: currentTheme === 'dark' ? '#718096' : '#ccc', color: currentTheme === 'dark' ? 'white' : 'black', border: 'none', borderRadius: '4px' }}>取消</button>
-          </div>
-        </div>
-      );
-    }
-
     const handlePropertyChange = (property: string, value: any) => {
       if (currentBreakpoint === 'desktop') {
         updateComponent(component.id, { [property]: value });
@@ -265,7 +216,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <button 
             className="canvas-button" 
-            onClick={handleClick}
             style={{
               backgroundColor: '#667eea',
               color: 'white',
@@ -284,7 +234,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-text" 
-            onClick={handleClick}
             style={{
               color: currentTheme === 'dark' ? '#e2e8f0' : '#333',
               fontSize: '14px',
@@ -302,7 +251,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
           <input
             className="canvas-input"
             placeholder={mergedProps.text}
-            onClick={handleClick}
             style={{
               width: '100%',
               height: '100%',
@@ -319,7 +267,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-div" 
-            onClick={handleClick}
             style={{
               width: '100%',
               height: '100%',
@@ -335,7 +282,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         );
       case 'image':
         return (
-          <div className="canvas-image" onClick={handleClick}>
+          <div className="canvas-image">
             <img 
               src={mergedProps.src || 'https://via.placeholder.com/100x100'} 
               alt={mergedProps.alt || 'Image'}
@@ -347,7 +294,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-checkbox" 
-            onClick={handleClick}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -367,7 +313,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-radio" 
-            onClick={handleClick}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -388,7 +333,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <select 
             className="canvas-select" 
-            onClick={handleClick}
             value={mergedProps.value || ''}
             onChange={(e) => handlePropertyChange('value', e.target.value)}
             style={{
@@ -412,7 +356,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <textarea 
             className="canvas-textarea" 
-            onClick={handleClick}
             placeholder={mergedProps.placeholder || '请输入文本'}
             value={mergedProps.text || ''}
             onChange={(e) => handlePropertyChange('text', e.target.value)}
@@ -433,7 +376,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <h3 
             className="canvas-heading" 
-            onClick={handleClick}
             style={{
               margin: 0,
               fontSize: '18px',
@@ -445,7 +387,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         );
       case 'divider':
         return (
-          <div className="canvas-divider" onClick={handleClick}>
+          <div className="canvas-divider">
             <hr style={{ borderColor: currentTheme === 'dark' ? '#4a5568' : '#ddd' }} />
           </div>
         );
@@ -453,7 +395,6 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
         return (
           <div 
             className="canvas-card" 
-            onClick={handleClick}
             style={{
               width: '100%',
               height: '100%',
@@ -526,10 +467,12 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
           height: mergedProps.height,
           opacity: isDragging ? 0.5 : 1,
           zIndex: isSelected ? 10 : 1,
-          border: isSelected ? '2px solid #667eea' : 'none',
+          border: isSelected || isHovered ? '2px solid #667eea' : 'none',
           backgroundColor: currentTheme === 'dark' ? 'transparent' : 'transparent',
         }}
         onMouseDown={handleMouseDown}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <div
           style={{
@@ -539,7 +482,7 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
           }}
         >
           {renderComponent()}
-          {isSelected && (
+          {(isSelected || isHovered) && (
             <div
               className="delete-button"
               onClick={handleDelete}
@@ -558,7 +501,8 @@ const CanvasComponent = ({ component, canvasWidth = 1000, canvasHeight = 600 }: 
                 cursor: 'pointer',
                 fontSize: '16px',
                 zIndex: 100,
-                userSelect: 'none'
+                userSelect: 'none',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
               }}
             >
               ×
